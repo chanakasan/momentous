@@ -3,7 +3,12 @@ require_relative '../lib/momentous'
 # test doubles
 class UserEmailSender
   def send_welcome_email(event);
+    event.stop_propagation
   end
+end
+
+class PromotionEmailSender
+  def send(event); end
 end
 
 RSpec.describe Momentous::Event do
@@ -20,6 +25,7 @@ end
 
 RSpec.describe Momentous::EventDispatcher do
   let(:user_email_sender) { instance_double(UserEmailSender) }
+  let(:promotion_email_sender) { instance_double(PromotionEmailSender) }
   let(:generic_event) { Momentous::Event.new }
 
   it 'initially has an empty listeners array' do
@@ -60,6 +66,14 @@ RSpec.describe Momentous::EventDispatcher do
     subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
 
     expect(user_email_sender).to receive(:send_welcome_email).with(generic_event)
+    subject.dispatch(:after_signup, generic_event)
+  end
+
+  it 'stops propagation of events when needed' do
+    subject.add_listener(:after_signup, [UserEmailSender.new, :send_welcome_email])
+    subject.add_listener(:after_signup, [promotion_email_sender, :send])
+
+    expect(promotion_email_sender).to_not receive(:send)
     subject.dispatch(:after_signup, generic_event)
   end
 end

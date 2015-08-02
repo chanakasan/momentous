@@ -6,6 +6,8 @@ class Momentous::EventDispatcher
   def dispatch(event_name, event_obj=nil)
     return unless has_listeners(event_name)
 
+    event_obj = ::Momentous::Event.new if event_obj.nil?
+
     do_dispatch(get_listeners(event_name), event_name, event_obj)
   end
 
@@ -36,6 +38,8 @@ class Momentous::EventDispatcher
 
   def do_dispatch(listeners, event_name, event_obj)
     listeners.each do |listener|
+      break unless event_obj.is_propagated?
+
       listener[0].public_send(listener[1], event_obj)
     end
   end
