@@ -2,7 +2,8 @@ require_relative '../lib/momentous'
 
 # test doubles
 class UserEmailSender
-  def send_welcome_email(user); end
+  def send_welcome_email(event);
+  end
 end
 
 RSpec.describe Momentous::Event do
@@ -19,7 +20,7 @@ end
 
 RSpec.describe Momentous::EventDispatcher do
   let(:user_email_sender) { instance_double(UserEmailSender) }
-  let(:user) { Struct.new(:name).new }
+  let(:generic_event) { Momentous::Event.new }
 
   it 'initially has an empty listeners array' do
     expect(subject.get_listeners()).to eql([])
@@ -48,10 +49,17 @@ RSpec.describe Momentous::EventDispatcher do
     expect(subject.has_listeners(:after_signup)).to eql(false)
   end
 
-  it 'dispatches events' do
+  it 'dispatches events without a event object' do
     subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
 
-    expect(user_email_sender).to receive(:send_welcome_email).with(user)
-    subject.dispatch(:after_signup, user)
+    expect(user_email_sender).to receive(:send_welcome_email)
+    subject.dispatch(:after_signup)
+  end
+
+  it 'dispatches events with a event object' do
+    subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
+
+    expect(user_email_sender).to receive(:send_welcome_email).with(generic_event)
+    subject.dispatch(:after_signup, generic_event)
   end
 end
