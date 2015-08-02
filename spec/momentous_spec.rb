@@ -55,21 +55,21 @@ RSpec.describe Momentous::EventDispatcher do
     expect(subject.has_listeners(:after_signup)).to eql(false)
   end
 
-  it 'dispatches events without a event object' do
+  it 'dispatches an event without an event object' do
     subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
 
     expect(user_email_sender).to receive(:send_welcome_email)
     subject.dispatch(:after_signup)
   end
 
-  it 'dispatches events with a event object' do
+  it 'dispatches an event with an event object' do
     subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
 
     expect(user_email_sender).to receive(:send_welcome_email).with(generic_event)
     subject.dispatch(:after_signup, generic_event)
   end
 
-  it 'stops propagation of events when needed' do
+  it 'stops propagation of an event when needed' do
     subject.add_listener(:after_signup, [UserEmailSender.new, :send_welcome_email])
     subject.add_listener(:after_signup, [promotion_email_sender, :send])
 
