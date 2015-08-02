@@ -5,6 +5,18 @@ class UserMailer
   def send_welcome_email(user); end
 end
 
+RSpec.describe Momentous::Event do
+  it 'is popagated by default' do
+    expect(subject.is_propagated?).to eql(subject.is_propagated)
+    expect(subject.is_propagated?).to eql(true)
+  end
+
+  it 'stops propagation of the event' do
+    subject.stop_propagation
+    expect(subject.is_propagated?).to eql(false)
+  end
+end
+
 RSpec.describe Momentous::EventDispatcher do
   let(:user_mailer) { instance_double(UserMailer) }
   let(:user) { Struct.new(:name).new }
