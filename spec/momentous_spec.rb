@@ -1,5 +1,9 @@
 require_relative '../lib/momentous'
 
+# TODO
+#
+# * use better error messages for inside method_missing
+
 # test doubles
 class UserEmailSender
   @@received_attribs = false
@@ -19,7 +23,7 @@ class UserEmailSender
 end
 
 class PromotionEmailSender
-  def send(event); end
+  def send_email(event); end
 end
 
 RSpec.describe Momentous::EventBase do
@@ -94,10 +98,9 @@ RSpec.describe Momentous::EventDispatcher do
 
     it 'stops propagation of an event when needed' do
       subject.add_listener(:after_signup, [UserEmailSender.new, :send_welcome_email])
-      subject.add_listener(:after_signup, [promotion_email_sender, :send])
+      subject.add_listener(:after_signup, [promotion_email_sender, :send_email])
 
-      # TODO rename promotion_email_sender#send -> send_email
-      expect(promotion_email_sender).to_not receive(:send)
+      expect(promotion_email_sender).to_not receive(:send_email)
       subject.dispatch(:after_signup)
     end
 
