@@ -17,12 +17,12 @@ class Momentous::Event < Momentous::EventBase
 
   def initialize(name=nil, attributes={})
     @name = name
-    @attributes = attributes || {}
+    @attributes = attributes.is_a?(Hash) ? attributes : {}
     super()
   end
 
   def method_missing(name, *args, &block)
-    attributes.fetch(:name) { nil }
+    attributes.fetch(name) { nil }
   end
 
   private

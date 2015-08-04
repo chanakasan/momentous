@@ -34,6 +34,24 @@ RSpec.describe Momentous::EventBase do
   end
 end
 
+RSpec.describe Momentous::Event do
+  it 'inherits from EventBase class' do
+    expect(subject).to be_kind_of(Momentous::EventBase)
+  end
+
+  it 'accepts the event name when initializing' do
+    expect(subject.name).to be_nil
+
+    event = Momentous::Event.new(:custom_event)
+    expect(event.name).to eql(:custom_event)
+  end
+
+  it 'accepts an attributes hash when initializing' do
+    event = Momentous::Event.new(:custom_event, { some_key: 'some_val' })
+    expect(event.some_key).to eql('some_val')
+  end
+end
+
 RSpec.describe Momentous::EventDispatcher do
   let(:user_email_sender) { instance_double(UserEmailSender) }
   let(:promotion_email_sender) { instance_double(PromotionEmailSender) }
@@ -88,6 +106,14 @@ RSpec.describe Momentous::EventDispatcher do
 
       expect(user_email_sender).to receive(:send_welcome_email).with(generic_event)
       subject.dispatch(:after_signup, generic_event)
+    end
+
+    it 'dispatches an event with an attributes hash' do
+      subject.add_listener(:after_signup, [UserEmailSender.new, :send_welcome_email])
+
+      expect(UserEmailSender.received_attribs?).to eql(false)
+      subject.dispatch(:after_signup, { some_key: 'some_val' })
+      expect(UserEmailSender.received_attribs?).to eql(true)
     end
   end
 end
