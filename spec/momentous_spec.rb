@@ -55,25 +55,35 @@ RSpec.describe Momentous::EventDispatcher do
     expect(subject.has_listeners(:after_signup)).to eql(false)
   end
 
-  it 'dispatches an event without an event object' do
-    subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
+  context 'when dispatching events' do
+    it 'dispatches an event without an event object' do
+      subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
 
-    expect(user_email_sender).to receive(:send_welcome_email)
-    subject.dispatch(:after_signup)
-  end
+      expect(user_email_sender).to receive(:send_welcome_email)
+      subject.dispatch(:after_signup)
+    end
 
-  it 'dispatches an event with an event object' do
-    subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
+    it 'dispatches an event with an event object' do
+      subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
 
-    expect(user_email_sender).to receive(:send_welcome_email).with(generic_event)
-    subject.dispatch(:after_signup, generic_event)
-  end
+      expect(user_email_sender).to receive(:send_welcome_email).with(generic_event)
+      subject.dispatch(:after_signup, generic_event)
+    end
 
-  it 'stops propagation of an event when needed' do
-    subject.add_listener(:after_signup, [UserEmailSender.new, :send_welcome_email])
-    subject.add_listener(:after_signup, [promotion_email_sender, :send])
+    it 'dispatches an event with an attributes hash' do
+      subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
 
-    expect(promotion_email_sender).to_not receive(:send)
-    subject.dispatch(:after_signup, generic_event)
+      expect(user_email_sender).to receive(:send_welcome_email)
+        .with(instance_of(Momentous::Event))
+      subject.dispatch(:after_signup, { some_key: 'some_val' })
+    end
+
+    it 'stops propagation of an event when needed' do
+      subject.add_listener(:after_signup, [UserEmailSender.new, :send_welcome_email])
+      subject.add_listener(:after_signup, [promotion_email_sender, :send])
+
+      expect(promotion_email_sender).to_not receive(:send)
+      subject.dispatch(:after_signup)
+    end
   end
 end

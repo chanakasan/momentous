@@ -7,6 +7,7 @@ class Momentous::EventDispatcher
     return unless has_listeners(event_name)
 
     event_obj = ::Momentous::Event.new if event_obj.nil?
+    event_obj = ::Momentous::Event.new if event_obj.is_a? Hash
 
     do_dispatch(get_listeners(event_name), event_name, event_obj)
   end
