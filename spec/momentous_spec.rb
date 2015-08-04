@@ -2,8 +2,19 @@ require_relative '../lib/momentous'
 
 # test doubles
 class UserEmailSender
+  @@received_attribs = false
+
   def send_welcome_email(event);
     event.stop_propagation
+    set_received_attribs(event)
+  end
+
+  def set_received_attribs(event)
+    @@received_attribs = true if event.some_key == 'some_val'
+  end
+
+  def self.received_attribs?
+    @@received_attribs
   end
 end
 
@@ -11,7 +22,7 @@ class PromotionEmailSender
   def send(event); end
 end
 
-RSpec.describe Momentous::Event do
+RSpec.describe Momentous::EventBase do
   it 'is popagated by default' do
     expect(subject.is_propagated?).to eql(subject.is_propagated)
     expect(subject.is_propagated?).to eql(true)
@@ -63,27 +74,20 @@ RSpec.describe Momentous::EventDispatcher do
       subject.dispatch(:after_signup)
     end
 
+    it 'stops propagation of an event when needed' do
+      subject.add_listener(:after_signup, [UserEmailSender.new, :send_welcome_email])
+      subject.add_listener(:after_signup, [promotion_email_sender, :send])
+
+      # TODO rename promotion_email_sender#send -> send_email
+      expect(promotion_email_sender).to_not receive(:send)
+      subject.dispatch(:after_signup)
+    end
+
     it 'dispatches an event with an event object' do
       subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
 
       expect(user_email_sender).to receive(:send_welcome_email).with(generic_event)
       subject.dispatch(:after_signup, generic_event)
-    end
-
-    it 'dispatches an event with an attributes hash' do
-      subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
-
-      expect(user_email_sender).to receive(:send_welcome_email)
-        .with(instance_of(Momentous::Event))
-      subject.dispatch(:after_signup, { some_key: 'some_val' })
-    end
-
-    it 'stops propagation of an event when needed' do
-      subject.add_listener(:after_signup, [UserEmailSender.new, :send_welcome_email])
-      subject.add_listener(:after_signup, [promotion_email_sender, :send])
-
-      expect(promotion_email_sender).to_not receive(:send)
-      subject.dispatch(:after_signup)
     end
   end
 end
