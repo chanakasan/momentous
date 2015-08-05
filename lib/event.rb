@@ -13,10 +13,7 @@ class Momentous::EventBase
 end
 
 class Momentous::Event < Momentous::EventBase
-  attr_reader :name
-
-  def initialize(name=nil, attributes={})
-    @name = name
+  def initialize(attributes={})
     @attributes = attributes.is_a?(Hash) ? attributes : {}
     super()
   end

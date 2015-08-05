@@ -43,15 +43,8 @@ RSpec.describe Momentous::Event do
     expect(subject).to be_kind_of(Momentous::EventBase)
   end
 
-  it 'accepts the event name when initializing' do
-    expect(subject.name).to be_nil
-
-    event = Momentous::Event.new(:custom_event)
-    expect(event.name).to eql(:custom_event)
-  end
-
   it 'accepts an attributes hash when initializing' do
-    event = Momentous::Event.new(:custom_event, { some_key: 'some_val' })
+    event = Momentous::Event.new(some_key: 'some_val')
     expect(event.some_key).to eql('some_val')
   end
 end

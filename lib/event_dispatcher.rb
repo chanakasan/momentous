@@ -3,14 +3,14 @@ class Momentous::EventDispatcher
     @listeners = {}
   end
 
-  def dispatch(event_name, event_obj=nil)
+  def dispatch(event_name, event_data=nil)
     return unless has_listeners(event_name)
 
-    if event_obj.nil? or event_obj.is_a? Hash
-      event_obj = ::Momentous::Event.new(event_name, event_obj)
+    if event_data.nil? or event_data.is_a? Hash
+      event_data = ::Momentous::Event.new(event_data)
     end
 
-    do_dispatch(get_listeners(event_name), event_name, event_obj)
+    do_dispatch(get_listeners(event_name), event_name, event_data)
   end
 
   def add_listener(event_name, listener)
