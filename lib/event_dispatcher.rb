@@ -14,21 +14,21 @@ class Momentous::EventDispatcher
   end
 
   def add_listener(event_name, listener)
-    (listeners[:event_name] ||= []) << listener
+    (listeners[event_name] ||= []) << listener
   end
 
   def get_listeners(event_name = nil)
     return [] if event_name.nil?
 
-    listeners[:event_name]
+    listeners[event_name]
   end
 
   def has_listeners(event_name)
-    listeners[:event_name] != nil and listeners[:event_name].count > 0
+    listeners[event_name] != nil and listeners[event_name].count > 0
   end
 
   def remove_listener(event_name, listener)
-    event_listeners = listeners[:event_name]
+    event_listeners = listeners[event_name]
     return if event_listeners.nil?
 
     candidate = event_listeners.bsearch { |x| x == listener }
