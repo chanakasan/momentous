@@ -18,8 +18,16 @@ class Momentous::Event < Momentous::EventBase
     super()
   end
 
+  def set(key, val)
+    attributes[key] = val
+  end
+
+  def has_attrib(name)
+    !attributes[name].nil?
+  end
+
   def method_missing(name, *args, &block)
-    attributes.fetch(name) { nil }
+    attributes.fetch(name) { raise NoMethodError }
   end
 
   private

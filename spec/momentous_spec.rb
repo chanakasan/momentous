@@ -1,9 +1,5 @@
 require_relative '../lib/momentous'
 
-# TODO
-#
-# * use better error messages for inside method_missing
-
 # test doubles
 class UserEmailSender
   @@received_attribs = false
@@ -14,7 +10,9 @@ class UserEmailSender
   end
 
   def set_received_attribs(event)
-    @@received_attribs = true if event.some_key == 'some_val'
+    if event.has_attrib(:some_key) and event.some_key == 'some_val'
+      @@received_attribs = true
+    end
   end
 
   def self.received_attribs?
@@ -46,6 +44,22 @@ RSpec.describe Momentous::Event do
   it 'accepts an attributes hash when initializing' do
     event = Momentous::Event.new(some_key: 'some_val')
     expect(event.some_key).to eql('some_val')
+  end
+
+  it 'raises an NoMethodError if attribute not set' do
+    expect{ subject.some_key }.to raise_error(NoMethodError)
+  end
+
+  it 'has mutable attributes' do
+    expect{ subject.some_key }.to raise_error(NoMethodError)
+
+    subject.set(:some_key, 'some_val')
+    expect(subject.some_key).to eql('some_val')
+  end
+
+  it 'knows whether an attribute exists' do
+    expect(subject.has_attrib(:some_key)).to eql(false)
+    expect(subject.has_attrib(:some_key)).to eql(false)
   end
 end
 
