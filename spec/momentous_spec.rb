@@ -103,6 +103,16 @@ RSpec.describe Momentous::EventDispatcher do
       subject.dispatch(:after_signup)
     end
 
+    it 'propagates an event by default' do
+      subject.add_listener(:after_signup, [UserEmailSender.new, :send_welcome_email])
+      subject.add_listener(:after_signup, [promotion_email_sender, :send_email])
+
+      event_double = instance_double(Momentous::Event, is_propagated?: true, stop_propagation: nil, has_attrib: nil)
+
+      expect(promotion_email_sender).to receive(:send_email)
+      subject.dispatch(:after_signup, event_double)
+    end
+
     it 'stops propagation of an event when needed' do
       subject.add_listener(:after_signup, [UserEmailSender.new, :send_welcome_email])
       subject.add_listener(:after_signup, [promotion_email_sender, :send_email])
