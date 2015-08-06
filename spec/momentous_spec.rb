@@ -90,7 +90,7 @@ RSpec.describe Momentous::EventDispatcher do
     subject.add_listener(:after_signup, [user_email_sender, :send_welcome_email])
     expect(subject.has_listeners(:after_signup)).to eql(true)
 
-    subject.remove_listener(:after_signup, [user_email_sender, :send_welcome_email])
+    subject.remove_listener(:after_signup, user_email_sender)
 
     expect(subject.has_listeners(:after_signup)).to eql(false)
   end

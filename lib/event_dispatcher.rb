@@ -28,11 +28,11 @@ class Momentous::EventDispatcher
   end
 
   def remove_listener(event_name, listener)
-    event_listeners = listeners[event_name]
-    return if event_listeners.nil?
+    current_listeners = listeners[event_name]
+    return if current_listeners.nil?
 
-    candidate = event_listeners.bsearch { |x| x == listener }
-    event_listeners.delete(candidate)
+    candidate = current_listeners.assoc(listener)
+    current_listeners.delete(candidate)
   end
 
   private
