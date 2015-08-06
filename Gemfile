@@ -1,7 +1,8 @@
 source 'http://rubygems.org'
 
 group :development do
-  gem 'rspec'
+  gem 'rspec', :require => false
+  gem 'rake', :require => false
 end
 
 group :test do
